@@ -1,0 +1,17 @@
+sudo: true
+language: ruby
+rvm:
+  - 2.3.6
+  - 2.4.3
+  - 2.5.0
+
+cache: bundler
+
+install:
+    - git config --global user.name "Autoproj on Travis CI"
+    - git config --global user.email "autoproj@travis"
+    - gem install bundler
+    - bundler install --path vendor/bundle
+script:
+    - bundler exec rake test
+
