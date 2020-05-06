@@ -85,6 +85,16 @@ module Autoproj
                     assert generated_overrides.empty?
                 end
 
+                it "creates overrides dir if it doesn't exist" do
+                    FileUtils.rm_rf ws.overrides_dir
+                    refute File.exist? ws.overrides_dir
+
+                    add_pull_request("rock-core", "base-types", 1, "")
+                    run_cli("http://github.com/rock-core/base-types/pull/1")
+
+                    assert generated_overrides.empty?
+                end
+
                 it "does nothing if PR dependencies does not affect a known package" do
                     body = <<~EOFBODY
                         Depends on:

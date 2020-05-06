@@ -97,6 +97,7 @@ module Autoproj
                 end
 
                 def export_overrides(overrides)
+                    FileUtils.mkdir_p File.dirname(generated_file)
                     File.open(generated_file, "w") do |f|
                         f.write(overrides.to_yaml)
                     end
