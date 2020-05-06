@@ -27,6 +27,7 @@ module Autoproj
             def generate(url)
                 owner, name, number = validate_url(url)
 
+                declare_configuration_options
                 confirm_overwrite unless options[:overwrite]
                 perform_update if options[:update]
 
@@ -148,6 +149,24 @@ module Autoproj
                     raise Interrupt
                 end
 
+                def declare_configuration_options
+                    doc = <<~EOFDOC.chomp
+                        This plugin requires a valid Github personal access token to
+                        work. If you don't have one, please, login to your Github account and
+                        generate it on https://github.com/settings/tokens. Make sure you
+                        enable at least the "repo" scope.
+
+                        "Enter your Github token for authentication"
+                    EOFDOC
+
+                    ws.config.declare "overrides_generator_api_key", "string", doc: doc
+                    while ws.config.get("overrides_generator_api_key").empty?
+                        ws.config.configure "overrides_generator_api_key"
+                    end
+
+                    ws.config.save
+                end
+
                 def ws
                     unless @ws
                         @ws = Autoproj::Workspace.default
@@ -157,11 +176,8 @@ module Autoproj
                 end
 
                 def client
-                    @config = ws.config
-                    login = ws.config.get("overrides_generator_login")
-                    password = ws.config.get("overrides_generator_password")
-
-                    @client ||= Octokit::Client.new(login: login, password: password)
+                    api_key = ws.config.get("overrides_generator_api_key")
+                    @client ||= Octokit::Client.new(access_token: api_key)
                 end
 
                 def packages

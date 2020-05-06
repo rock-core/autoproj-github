@@ -14,8 +14,7 @@ module Autoproj
 
             before do
                 autoproj_create_ws
-                ws.config.set("overrides_generator_login", "user")
-                ws.config.set("overrides_generator_password", "pass")
+                ws.config.set("overrides_generator_api_key", "abcdefgh")
                 ws.config.save
             end
 
@@ -75,7 +74,7 @@ module Autoproj
                 before do
                     flexmock(Octokit::Client)
                         .should_receive(:new)
-                        .with(login: "user", password: "pass")
+                        .with(access_token: "abcdefgh")
                         .and_return(mock_client).once
                 end
 
