@@ -35,12 +35,12 @@ module Autoproj
                 end
             end
 
-            def generated_file
-                File.join(ws.overrides_dir, "999-github.yml")
+            def generated_file(file_name = "999-github.yml")
+                File.join(ws.overrides_dir, file_name)
             end
 
-            def generated_overrides
-                YAML.safe_load(File.read(generated_file))
+            def generated_overrides(file_name = "999-github.yml")
+                YAML.safe_load(File.read(generated_file(file_name)))
             end
 
             describe "does not send api requests" do
@@ -189,6 +189,28 @@ module Autoproj
                     ]
 
                     assert_equal expected_overrides, generated_overrides
+                end
+
+                it "allows defining the output filename" do
+                    add_pull_request("rock-core", "base-types", 1, "")
+                    run_cli(
+                        "--output",
+                        "001-foo.yml",
+                        "http://github.com/rock-core/base-types/pull/1"
+                    )
+
+                    assert generated_overrides("001-foo.yml").empty?
+                end
+
+                it "raises if output filename contains slashes" do
+                    add_pull_request("rock-core", "base-types", 1, "")
+                    assert_raises(Interrupt) do
+                        run_cli(
+                            "--output",
+                            "test/999-foo.yml",
+                            "http://github.com/rock-core/base-types/pull/1"
+                        )
+                    end
                 end
             end
         end

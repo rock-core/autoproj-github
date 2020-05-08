@@ -17,6 +17,10 @@ module Autoproj
             PARSE_URL_RX = %r{(?:[:/]([A-Za-z\d\-_]+))/(.+?)(?:.git$|$)+$}m.freeze
 
             desc "overrides PR_URL", "Generates overrides for the given PR URL"
+            option :output, type: "string",
+                            desc: "output file name",
+                            default: DEFAULT_OVERRIDES_FILE
+
             option :overwrite, type: "boolean",
                                desc: "overwrite current overrides if needed",
                                default: false
@@ -40,8 +44,6 @@ module Autoproj
                 Autoproj.message "Overrides file saved to #{generated_file}"
             end
 
-            default_command :generate
-
             no_commands do # rubocop: disable Metrics/BlockLength
                 def confirm_overwrite
                     return unless File.exist? generated_file
@@ -50,6 +52,11 @@ module Autoproj
                 end
 
                 def generate_overrides(overrides, url, auto_update: false)
+                    if options[:output] =~ /\\|\//
+                        Autoproj.error "Invalid output filename"
+                        raise Interrupt
+                    end
+
                     if requires_package_set_override?(overrides)
                         unless auto_update
                             confirm "This Pull Requst depends on a package "\
@@ -76,7 +83,10 @@ module Autoproj
                     Process.exec(
                         Gem.ruby,
                         $PROGRAM_NAME,
+                        "github",
                         "overrides",
+                        "--output",
+                        options[:output],
                         "--update",
                         "--overwrite",
                         url
@@ -97,7 +107,7 @@ module Autoproj
                 end
 
                 def export_overrides(overrides)
-                    FileUtils.mkdir_p File.dirname(generated_file)
+                    FileUtils.mkdir_p ws.overrides_dir
                     File.open(generated_file, "w") do |f|
                         f.write(overrides.to_yaml)
                     end
@@ -132,7 +142,7 @@ module Autoproj
                 end
 
                 def generated_file
-                    File.join(ws.overrides_dir, DEFAULT_OVERRIDES_FILE)
+                    File.join(ws.overrides_dir, options[:output])
                 end
 
                 def confirm(msg, default: "yes")
