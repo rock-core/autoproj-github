@@ -4,7 +4,7 @@ require "json"
 require "time"
 
 module Autoproj
-    module OverridesGenerator
+    module Github
         # A PullRequest model representation
         class PullRequest
             # @return [Hash]

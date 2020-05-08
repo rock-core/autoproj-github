@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-require "autoproj/overrides_generator"
+require "autoproj/github"
 require "autoproj/test"
 require "minitest/autorun"
 require "minitest/spec"
@@ -12,7 +12,7 @@ require "open3"
 require "rubygems/package"
 
 module Autoproj
-    module OverridesGenerator
+    module Github
         # Helpers to ease tests
         module TestHelpers
             attr_reader :ws

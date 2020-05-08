@@ -7,14 +7,14 @@ require "yaml"
 module Autoproj
     # Main daemon module
     module CLI
-        describe MainOverridesGenerator do
+        describe MainGithub do
             attr_reader :cli
 
-            include Autoproj::OverridesGenerator::TestHelpers
+            include Autoproj::Github::TestHelpers
 
             before do
                 autoproj_create_ws
-                ws.config.set("overrides_generator_api_key", "abcdefgh")
+                ws.config.set("github_api_key", "abcdefgh")
                 ws.config.save
             end
 
@@ -31,12 +31,12 @@ module Autoproj
 
             def run_cli(*args)
                 in_ws do
-                    MainOverridesGenerator.start(["generate", *args])
+                    MainGithub.start(["overrides", *args])
                 end
             end
 
             def generated_file
-                File.join(ws.overrides_dir, "999-overrides_generator.yml")
+                File.join(ws.overrides_dir, "999-github.yml")
             end
 
             def generated_overrides
@@ -58,10 +58,10 @@ module Autoproj
 
                 it "aborts if user does not want to overwrite current overrides" do
                     FileUtils.touch generated_file
-                    flexmock(MainOverridesGenerator)
+                    flexmock(MainGithub)
                         .new_instances
                         .should_receive(:confirm)
-                        .with("Overwrite 999-overrides_generator.yml?")
+                        .with("Overwrite 999-github.yml?")
                         .and_raise(Interrupt)
 
                     assert_raises(Interrupt) do
@@ -109,7 +109,7 @@ module Autoproj
                 end
 
                 it "updates configuration when requested to do so" do
-                    mock = flexmock(MainOverridesGenerator).new_instances
+                    mock = flexmock(MainGithub).new_instances
                     mock.should_receive(:perform_update).pass_thru.once.ordered
                     mock.should_receive(:generate_overrides)
                         .with(
@@ -128,7 +128,7 @@ module Autoproj
                 end
 
                 it "does not ask about overwriting if already requested to do so" do
-                    flexmock(MainOverridesGenerator)
+                    flexmock(MainGithub)
                         .new_instances
                         .should_receive(:confirm)
                         .never

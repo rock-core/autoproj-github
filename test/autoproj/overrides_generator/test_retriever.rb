@@ -4,11 +4,11 @@ require "test_helper"
 
 module Autoproj
     # Main daemon module
-    module OverridesGenerator
+    module Github
         describe Retriever do
             attr_reader :retriever
 
-            include Autoproj::OverridesGenerator::TestHelpers
+            include Autoproj::Github::TestHelpers
 
             before do
                 @retriever = Retriever.new(mock_client)

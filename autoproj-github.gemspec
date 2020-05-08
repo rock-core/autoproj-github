@@ -2,16 +2,16 @@
 
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "autoproj/overrides_generator/version"
+require "autoproj/github/version"
 
 Gem::Specification.new do |spec|
-    spec.name = "autoproj-overrides-generator"
-    spec.version       = Autoproj::OverridesGenerator::VERSION
+    spec.name = "autoproj-github"
+    spec.version       = Autoproj::Github::VERSION
     spec.authors       = ["Gabriel Arjones"]
     spec.email         = ["arjones@arjones.com"]
 
-    spec.homepage      = "https://github.com/rock-core/autoproj-overrides-generator"
-    spec.summary       = "Generates overrides for a given Github Pull Request"
+    spec.homepage      = "https://github.com/rock-core/autoproj-github"
+    spec.summary       = "Set of tools to make working with Autoproj and Github easier"
     spec.license       = "BSD 3-Clause"
 
     # Prevent pushing this gem to RubyGems.org. To allow pushes either set the
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
     spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
     spec.metadata["homepage_uri"] = spec.homepage
-    spec.metadata["source_code_uri"] = "https://github.com/rock-core/autoproj-overrides-generator"
+    spec.metadata["source_code_uri"] = "https://github.com/rock-core/autoproj-github"
 
     # Specify which files should be added to the gem when it is released.
     # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

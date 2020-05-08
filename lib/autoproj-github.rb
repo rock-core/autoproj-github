@@ -1,14 +1,14 @@
 # rubocop:disable Naming/FileName
 # frozen_string_literal: true
 
-require "autoproj/overrides_generator"
+require "autoproj/github"
 
 module Autoproj
     module CLI
         # Autoproj's main CLI class
         class Main
-            desc "overrides", "subcommands to control the overrides generator"
-            subcommand "overrides", Autoproj::CLI::MainOverridesGenerator
+            desc "github", "subcommands to control github plugin"
+            subcommand "github", Autoproj::CLI::MainGithub
         end
     end
 end

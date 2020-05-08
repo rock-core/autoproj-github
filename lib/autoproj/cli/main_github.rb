@@ -3,20 +3,20 @@
 require "autoproj"
 require "autoproj/build_option"
 require "autoproj/cli/update"
-require "autoproj/overrides_generator/retriever"
+require "autoproj/github/retriever"
 require "octokit"
 require "thor"
 require "yaml"
 
 module Autoproj
     module CLI
-        # CLI interface for autoproj-overrides-generator
-        class MainOverridesGenerator < Thor
-            DEFAULT_OVERRIDES_FILE = "999-overrides_generator.yml"
+        # CLI interface for autoproj-github
+        class MainGithub < Thor
+            DEFAULT_OVERRIDES_FILE = "999-github.yml"
             VALID_URL_RX = /github.com/i.freeze
             PARSE_URL_RX = %r{(?:[:/]([A-Za-z\d\-_]+))/(.+?)(?:.git$|$)+$}m.freeze
 
-            desc "generate PR_URL", "Generates overrides for the given PR URL"
+            desc "overrides PR_URL", "Generates overrides for the given PR URL"
             option :overwrite, type: "boolean",
                                desc: "overwrite current overrides if needed",
                                default: false
@@ -24,7 +24,7 @@ module Autoproj
             option :update, type: "boolean",
                             desc: "update package sets if needed",
                             default: false
-            def generate(url)
+            def overrides(url)
                 owner, name, number = validate_url(url)
 
                 declare_configuration_options
@@ -65,7 +65,7 @@ module Autoproj
 
                 def validate_url(url)
                     owner, name, number =
-                        OverridesGenerator::Retriever.url_to_owner_name_and_number(url)
+                        Github::Retriever.url_to_owner_name_and_number(url)
                     return [owner, name, number] if owner && name && number
 
                     Autoproj.error "Invalid Github Pull Request URL"
@@ -160,9 +160,9 @@ module Autoproj
                         "Enter your Github token for authentication"
                     EOFDOC
 
-                    ws.config.declare "overrides_generator_api_key", "string", doc: doc
-                    while ws.config.get("overrides_generator_api_key").empty?
-                        ws.config.configure "overrides_generator_api_key"
+                    ws.config.declare "github_api_key", "string", doc: doc
+                    while ws.config.get("github_api_key").empty?
+                        ws.config.configure "github_api_key"
                     end
 
                     ws.config.save
@@ -177,7 +177,7 @@ module Autoproj
                 end
 
                 def client
-                    api_key = ws.config.get("overrides_generator_api_key")
+                    api_key = ws.config.get("github_api_key")
                     @client ||= Octokit::Client.new(access_token: api_key)
                 end
 
@@ -223,11 +223,11 @@ module Autoproj
                 end
 
                 def retrieve_required_pull_requests(owner, name, number)
-                    retriever = OverridesGenerator::Retriever.new(client)
+                    retriever = Github::Retriever.new(client)
 
                     begin
                         all_prs = retriever.retrieve_dependencies(owner, name, number)
-                        all_prs << OverridesGenerator::PullRequest.new(
+                        all_prs << Github::PullRequest.new(
                             client, owner, name, number
                         )
                     rescue StandardError => e

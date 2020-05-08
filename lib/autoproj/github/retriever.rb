@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "autoproj/overrides_generator/pull_request"
+require "autoproj/github/pull_request"
 
 module Autoproj
-    module OverridesGenerator
+    module Github
         # A class that retrievers overrides from a pull request
         class Retriever
             DEPENDS_ON_RX = /(?:.*depends?(?:\s+on)?\s*\:?\s*\n)(.*)/mi.freeze
@@ -47,7 +47,7 @@ module Autoproj
             end
 
             def pull_request(owner, name, number)
-                OverridesGenerator::PullRequest.new(client, owner, name, number)
+                Github::PullRequest.new(client, owner, name, number)
             end
 
             def self.url_to_owner_name_and_number(url)
@@ -58,8 +58,8 @@ module Autoproj
             end
 
             # @param [String] task
-            # @param [Autoproj::OverridesGenerator::PullRequest] pull_request
-            # @return [Autoproj::OverridesGenerator::PullRequest, nil]
+            # @param [Autoproj::Github::PullRequest] pull_request
+            # @return [Autoproj::Github::PullRequest, nil]
             def task_to_pull_request(task, pull_request)
                 if (match = PULL_REQUEST_URL_RX.match(task))
                     owner, name, number = match[1..-1]
@@ -79,8 +79,8 @@ module Autoproj
                 nil
             end
 
-            # @param [Array<Autoproj::OverridesGenerator::PullRequest] visited
-            # @param [Autoproj::OverridesGenerator::PullRequest] pull_request
+            # @param [Array<Autoproj::Github::PullRequest] visited
+            # @param [Autoproj::Github::PullRequest] pull_request
             # @return [Boolean]
             def visited?(visited, pull_request)
                 visited.any? do |pr|
@@ -90,8 +90,8 @@ module Autoproj
                 end
             end
 
-            # @param [Autoproj::OverridesGenerator::PullRequest] pull_request
-            # @return [Array<Autoproj::OverridesGenerator::PullRequest>]
+            # @param [Autoproj::Github::PullRequest] pull_request
+            # @return [Array<Autoproj::Github::PullRequest>]
             def retrieve_dependencies(owner, name, number, visited = [], deps = [])
                 pull_request = pull_request(owner, name, number)
                 visited << pull_request
