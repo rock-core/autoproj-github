@@ -4,6 +4,7 @@ require "autoproj"
 require "autoproj/build_option"
 require "autoproj/cli/update"
 require "autoproj/github/retriever"
+require "autoproj/exceptions"
 require "octokit"
 require "thor"
 require "yaml"
@@ -94,13 +95,21 @@ module Autoproj
                 end
 
                 def perform_update
-                    Update.new(ws).run(
-                        [], autoproj: false,
-                            packages: false,
-                            config: true,
-                            deps: false,
-                            osdeps: false
-                    )
+                    begin
+                        Update.new(ws).run(
+                            [], autoproj: false,
+                                packages: false,
+                                config: true,
+                                deps: false,
+                                osdeps: false
+                        )
+                    rescue Autoproj::PackageNotFound
+                        # We don't care about package definitions,
+                        # we just want to update the package sets
+                        #
+                        # The user should update everythink later
+                        # as part of the PR 'testing' process
+                    end
 
                     @packages = ws.manifest.each_package_definition.to_a +
                                 ws.manifest.each_remote_package_set.to_a
@@ -196,12 +205,20 @@ module Autoproj
                 end
 
                 def ws_load
-                    ws.setup
-                    ws.load_package_sets
-                    ws.setup_all_package_directories
-                    ws.finalize_package_setup
+                    begin
+                        ws.setup
+                        ws.load_package_sets
+                        ws.setup_all_package_directories
+                        ws.finalize_package_setup
+                        ws.finalize_setup
+                    rescue Autoproj::PackageNotFound
+                        # We don't care about package definitions,
+                        # we just want to update the package sets
+                        #
+                        # The user should update everythink later
+                        # as part of the PR 'testing' process
+                    end
 
-                    ws.finalize_setup
                     ws.manifest.each_package_definition.to_a +
                         ws.manifest.each_remote_package_set.to_a
                 end
