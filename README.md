@@ -8,7 +8,7 @@
 Run
 
 ```console
-$ autoproj plugin install --git https://github.com/rock-core/autoproj-github
+$ autoproj plugin install autoproj-github --git https://github.com/rock-core/autoproj-github
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ $ autoproj plugin install --git https://github.com/rock-core/autoproj-github
 Run
 
 ```console
-$ autoproj github overrides "https://github.com/rock-core/autoproj-github/pull/1"
+$ autoproj github overrides https://github.com/rock-core/autoproj-github/pull/1
 ```
 
 from within an Autoproj workspace and a `autoproj/overrides.d/999-github.yml`
